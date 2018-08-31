@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Read barcode in java</title>
+    <meta charset="utf-8">
+</head>
+<body style="margin:0">
+    
+    <div style="width:980px;height:482px;margin:auto;">
+                <div style="margin-top:20px;">The sample demonstrates how to read barcodes (Linear, PDF417, DataMatrix, QR Code) from a selected image in a Java web application.</div>
+    <br/>
+        Choose a file to upload and decode barcode(s): <input id="uploadImage" type="file" accept="image/bmp,image/jpeg,image/png,image/gif,application/pdf,image/tiff">
+        <div id="divLog" style="height:400px;"></div>
+    </div>
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script>
+        document.getElementById('uploadImage').addEventListener('change', function(){
+            var files = this.files;
+            var fd = new FormData();
+            fd.append('img', files[0]);
+            $('#divLog').html('');
+            $('#divLog').append('<p>=== uploading ===</p>');
+            $.ajax({
+                method: 'POST',
+                url: 'decodeBarcode.jsp',
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function(response){
+                    if(response && typeof response.length == 'number'){
+                        $('#divLog').append('<p>Total barcode(s) found: ' + response.length + '</p>');
+                        for(var i = 0; i < response.length; ++i){
+                            $('#divLog').append('<br>');
+                            var pIndex = document.createElement('p');
+                            $(pIndex).text('Barcode '+(i+1));
+                            $('#divLog').append(pIndex);
+                            var pVal = document.createElement('p');
+                            $(pVal).text('Value: '+response[i].barcodeText);
+                            $('#divLog').append(pVal);
+                        }
+                    }else{
+                        var pRep = document.createElement('p');
+                        $(pRep).text(response);
+                        $('#divLog').append(pRep);
+                    }
+                },
+                error: function(xhr, status, thrown){
+                    var pRep = document.createElement('p');
+                    $(pRep).text(status+":"+thrown);
+                    $('#divLog').append(pRep);
+                },
+                complete: function(){
+                    $('#divLog').append('<p>=== finish ===</p>');
+                }
+            })
+            this.value = '';
+        });
+    </script>
+</body>
+</html>
